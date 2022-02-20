@@ -19,11 +19,10 @@ function App() {
   const [bidAmount, setBidAmount] = useState(0);
   const [endTime, setEndTime] = useState();
   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  let contract = new ethers.Contract(auctionAddress, auction.abi, provider);
 
   useEffect(() => {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    contract = new ethers.Contract(auctionAddress, auction.abi, provider);
+    let contract = new ethers.Contract(auctionAddress, auction.abi, provider);
     getAuctionEndTime();
     getHighestBid();
 
