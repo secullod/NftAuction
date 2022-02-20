@@ -38,6 +38,15 @@ function App() {
         method: "eth_requestAccounts",
       });
     }
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(auctionAddress, auction.abi, signer);
+    contract
+      .endAt()
+      .then((end) =>
+        setEndTime(new Date(end.toNumber() * 1000).toLocaleString("en-US"))
+      );
+    contract.highestBid().then((bid) => setBid(utils.formatEther(bid)));
   }
 
   async function handleBid() {
