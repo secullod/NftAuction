@@ -22,8 +22,24 @@ function App() {
   let contract = new ethers.Contract(auctionAddress, auction.abi, provider);
 
   useEffect(() => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    contract = new ethers.Contract(auctionAddress, auction.abi, provider);
     getAuctionEndTime();
     getHighestBid();
+
+    function getAuctionEndTime() {
+      contract
+        .endAt()
+        .then((endTime) =>
+          setEndTime(
+            new Date(endTime.toNumber() * 1000).toLocaleString("en-US")
+          )
+        );
+    }
+
+    function getHighestBid() {
+      contract.highestBid().then((bid) => setBid(utils.formatEther(bid)));
+    }
   }, []);
 
   const connectAccount = getContractWithSigner;
@@ -39,18 +55,6 @@ function App() {
 
   async function handleBid() {
     getContractWithSigner().then((contract) => placeBid(contract));
-  }
-
-  function getAuctionEndTime() {
-    contract
-      .endAt()
-      .then((endTime) =>
-        setEndTime(new Date(endTime.toNumber() * 1000).toLocaleString("en-US"))
-      );
-  }
-
-  function getHighestBid() {
-    contract.highestBid().then((bid) => setBid(utils.formatEther(bid)));
   }
 
   function placeBid(contract) {
