@@ -48,6 +48,15 @@
   right: 0px;
 }
 
+#metamask:hover {
+  background: rgba(228, 118, 27, 0.5);
+  cursor: pointer;
+}
+
+#metamask:active {
+  transform: translateY(1px) translateX(1px);
+}
+
 .input-group .btn {
   border: solid 2px black;
   border-left: none;
@@ -62,6 +71,11 @@
   color: white;
   background: black;
   margin-top: 25px;
+  cursor: pointer;
+}
+
+.input-group .btn:active {
+  transform: translateX(1px);
 }
 
 .form-control {

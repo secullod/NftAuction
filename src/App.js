@@ -1,5 +1,4 @@
 import "./App.css";
-import delay from "delay";
 import {
   Container,
   Col,
@@ -19,53 +18,51 @@ function App() {
   const [bid, setBid] = useState(0);
   const [bidAmount, setBidAmount] = useState(0);
   const [endTime, setEndTime] = useState();
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  let contract = new ethers.Contract(auctionAddress, auction.abi, provider);
 
   useEffect(() => {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(auctionAddress, auction.abi, signer);
-    contract
-      .endAt()
-      .then((end) =>
-        setEndTime(new Date(end.toNumber() * 1000).toLocaleString("en-US"))
-      );
-    contract.highestBid().then((bid) => setBid(utils.formatEther(bid)));
+    getAuctionEndTime();
+    getHighestBid();
   }, []);
 
-  async function connectAccounts() {
-    if (window.ethereum) {
-      await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
-    }
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(auctionAddress, auction.abi, signer);
-    contract
-      .endAt()
-      .then((end) =>
-        setEndTime(new Date(end.toNumber() * 1000).toLocaleString("en-US"))
+  const connectAccount = getContractWithSigner;
+
+  function getContractWithSigner() {
+    return provider
+      .send("eth_requestAccounts", [])
+      .then(() => provider.getSigner())
+      .then(
+        (signer) => new ethers.Contract(auctionAddress, auction.abi, signer)
       );
-    contract.highestBid().then((bid) => setBid(utils.formatEther(bid)));
   }
 
   async function handleBid() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(auctionAddress, auction.abi, signer);
+    getContractWithSigner().then((contract) => placeBid(contract));
+  }
+
+  function getAuctionEndTime() {
+    contract
+      .endAt()
+      .then((endTime) =>
+        setEndTime(new Date(endTime.toNumber() * 1000).toLocaleString("en-US"))
+      );
+  }
+
+  function getHighestBid() {
+    contract.highestBid().then((bid) => setBid(utils.formatEther(bid)));
+  }
+
+  function placeBid(contract) {
     contract
       .bid({ value: utils.parseEther(bidAmount) })
-      .then(console.log)
-      .then(() => delay(20_000))
-      .then(() => contract.highestBid())
-      .then((highestBid) => setBid(utils.formatEther(highestBid)))
-      .then(() => setBidAmount(0))
+      .then((transaction) => provider.waitForTransaction(transaction.hash))
       .then(() => window.location.reload());
   }
 
   return (
     <Container>
-      <Button onClick={() => connectAccounts()} id="metamask">
+      <Button onClick={() => connectAccount()} id="metamask">
         <Image src={metamaskImg} id="metamask-image" />
         connect
       </Button>
@@ -83,15 +80,17 @@ function App() {
               Auction ends on <strong>{endTime}</strong>
             </Card.Text>
             <Card.Text>
-              Current Bid: <strong>{bid}</strong>
+              Current Bid: <strong>{bid} </strong>
+              <i class="fa fa-ethereum"></i>
             </Card.Text>
-
             <InputGroup>
               <FormControl
                 placeholder="Enter bid here..."
                 onChange={(e) => setBidAmount(e.target.value)}
               />
-              <Button onClick={() => handleBid()}>bid</Button>
+              <Button onClick={() => handleBid()}>
+                <i class="fa fa-ethereum"></i> bid
+              </Button>
             </InputGroup>
           </Card.Body>
         </Card>

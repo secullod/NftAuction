@@ -1,30 +1,30 @@
 const { utils } = require("ethers");
-
-const { SignerWithAddress } = require("@nomiclabs/hardhat-ethers/signers");
-
+const arkaniaNfts = require("../src/arkaniaNfts.json");
+const auction = require("../src/auction.json");
 const baseTokenURI = "ipfs://QmderjzRj2tqHayQa7Nx6rfcTBFutMYxEA7Ap4wjoxzUJa/";
-const contractName = "ArkaniaNfts";
+const nftsContract = "ArkaniaNfts";
+const auctionContract = "auction";
+const auctionStartingBid = "0.04";
+const nftForAuction = 0;
 
 async function main() {
-  const baseTokenURI = "ipfs://QmderjzRj2tqHayQa7Nx6rfcTBFutMYxEA7Ap4wjoxzUJa/";
-
   // Get owner/deployer's wallet address
   const [owner] = await hre.ethers.getSigners();
 
   // Get contract that we want to deploy
-  const contractFactory = await hre.ethers.getContractFactory(contractName);
+  const nftsFactory = await hre.ethers.getContractFactory(nftsContract);
 
   // Deploy contract with the correct constructor arguments
-  const contract = await contractFactory.deploy(baseTokenURI);
+  const nftContract = await nftsFactory.deploy(baseTokenURI);
 
   // Wait for this transaction to be mined
-  await contract.deployed();
+  await nftContract.deployed();
 
   // Get contract address
-  console.log("Contract deployed to:", contract.address);
+  console.log("Contract deployed to:", nftContract.address);
 
   // Reserve NFTs
-  let txn = await contract.reserveNFTs();
+  let txn = await nftContract.reserveNFTs();
   await txn.wait();
   console.log("1 NFT has been reserved");
 
@@ -35,7 +35,43 @@ async function main() {
   // Get all token IDs of the owner
   let tokens = await contract.tokensOfOwner(owner.address);
   console.log("Owner has tokens: ", tokens);
+
+  // Get contract that we want to deploy
+  const auctionFactory = await hre.ethers.getContractFactory("EnglishAuction");
+
+  // Deploy contract with the correct constructor arguments
+  const contract = await auctionFactory.deploy(
+    nftContract.address,
+    nftForAuction,
+    utils.parseEther(auctionStartingBid)
+  );
+
+  // Wait for this transaction to be mined
+  await auctionContract.deployed();
+
+  // Get contract address
+  console.log("Auction contract deployed to:", auctionContract.address);
 }
+
+const contract1 = new ethers.Contract(
+  nftContract.address,
+  arkaniaNfts.abi,
+  owner
+);
+
+// Deploy contract with the correct constructor arguments
+contract1.approve(auctionContract.address, nftForAuction);
+console.log(`Auction contract approved to sell nft ${nftForAuction}`);
+
+const contract2 = new ethers.Contract(
+  auctionContract.address,
+  auction.abi,
+  owner
+);
+
+contract2.start();
+// await auctionContract.get;
+console.log(`Auction contract approved to sell nft ${nftForAuction}`);
 
 // getOwner()
 //     .then(ctx => hre.ethers.getContractFactory(contractName)
