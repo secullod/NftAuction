@@ -1,38 +1,85 @@
-.App {
-  text-align: center;
+.container {
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 25px;
+  box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 20px 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  width: 1000px;
+  height: 500px;
+  position: relative;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.col {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  text-align: center;
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding: 25px;
+  width: 400px;
+  height: 400px;
+  margin: 15px;
+}
+
+.input-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+#metamask {
+  margin: 10px;
+  border: solid 1px #e4761b;
+  color: #e4761b;
+  font-weight: bold;
+  box-shadow: rgba(157, 75, 19, 0.9) 0px 0px 10px 0px;
+  font-size: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+}
+
+.input-group .btn {
+  border: solid 2px black;
+  border-left: none;
+  font-weight: bold;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding: 10px;
+  margin-top: 25px;
+}
+
+.input-group .btn:hover {
   color: white;
+  background: black;
+  margin-top: 25px;
 }
 
-.App-link {
-  color: #61dafb;
+.form-control {
+  margin-top: 25px;
+  border: solid 2px black;
+  outline: none;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  padding: 10px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+#nft-image {
+  max-height: 400px;
+  max-width: 400px;
+}
+
+#metamask-image {
+  width: 1em;
+  vertical-align: middle;
+  margin-right: 5px;
 }
