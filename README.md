@@ -19,5 +19,5 @@ https://nft-auction-secullod.vercel.app/
 ## Screenshots
 
 <p float="left">
-<img src="./img/nft.png" width="800" height="400">
+<img src="./img/nft.png" width="600" height="400">
 </p>
