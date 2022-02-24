@@ -1,15 +1,17 @@
-# Basic Sample Hardhat Project
+## NFT Auction Dapp
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+This project implements an ERC721 contract in conjunction with an auction contract to auction NFTs. In order to auction NFTs from an ERC721 contract the owner of the ERC721 contract must approve the auction contract to list those NFTs for sale.
 
-Try running some of the following tasks:
+With ProjectChain you can:
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+- Deploy an ERC721 contract
+- Deploy an auction contract
+-
+- Receive payments on invoices with ether
+- View project profitability via a profit and loss statement
+
+> This project was built using Solidity, Hardhat, ethers.js, React, and the Rinkeby Testnet.
+
+## Link
+
+https://nft-auction-secullod.vercel.app/
