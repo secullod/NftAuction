@@ -12,7 +12,7 @@ import metamaskImg from "./metamask.png";
 import { ethers, utils } from "ethers";
 import { useEffect, useState } from "react";
 import auction from "./arkaniaAuction.json";
-const auctionAddress = "0x5382CC32FF78Aa7F5D8D500FC62BF5Cf8Ac23feA";
+const auctionAddress = "0xF214d55E155ec9db860d66D68A4d06BFa6CF1599";
 
 function App() {
   const [bid, setBid] = useState(0);
