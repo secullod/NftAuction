@@ -15,7 +15,7 @@ interface IERC721 {
     ) external;
 }
 
-contract EnglishAuction {
+contract ArkaniaAuction {
     event Start();
     event Bid(address indexed sender, uint amount);
     event Withdraw(address indexed bidder, uint amount);

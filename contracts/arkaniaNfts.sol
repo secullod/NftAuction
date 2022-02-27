@@ -5,34 +5,51 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
-contract ArkaniaNfts is ERC721Enumerable, Ownable {
+contract ArkaniaNfts is ERC721Enumerable, ERC2981, Ownable  {
     using SafeMath for uint256;
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIds;
 
     uint public constant MAX_SUPPLY = 100;
-    uint public constant PRICE = 0.00001 ether;
-    uint public constant MAX_PER_MINT = 5;
+    uint public constant PRICE = .001 ether;
 
     string public contractURI;
     string public baseTokenURI;
+    bool public projectLaunched;
+    address payable public payments;
+    mapping(address => bool) public walletMinted;
 
-    constructor(string memory baseURI) ERC721("arkania Nfts", "ARK") {
+
+    constructor(string memory baseURI, uint96 _royaltyFeesInBips, string memory _contractURI, address payable _payments) ERC721("arkania Nfts", "ARK") {
         setBaseURI(baseURI);
+        contractURI = _contractURI;
+        setRoyaltyInfo(msg.sender, _royaltyFeesInBips);
+        payments = _payments;
     }
 
-    function reserveNFTs() public onlyOwner {
-        uint totalMinted = _tokenIds.current();
-
-        require(totalMinted.add(1) < MAX_SUPPLY, "Not enough NFTs left to reserve");
-
-        for (uint i = 0; i < 1; i++) {
-            _mintSingleNFT();
-        }
+    modifier isLaunched() {
+        require(projectLaunched, "The project is not yet launched");
+        _;
     }
+
+   modifier hasNotMinted() {
+        require(walletMinted[msg.sender] == false, "Can only mint 1 NFT per customer");
+        _;
+   }
+
+   modifier isMintCost() {
+        require(msg.value == PRICE, "Must send amount equal to mint price");
+        _;
+   }
+
+   modifier notSoldOut() {
+        require(_tokenIds.current() < MAX_SUPPLY, "project is sold out");
+        _;
+   }
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenURI;
@@ -42,40 +59,22 @@ contract ArkaniaNfts is ERC721Enumerable, Ownable {
         baseTokenURI = _baseTokenURI;
     }
 
-    function mintNFTs(uint _count) public payable {
-        uint totalMinted = _tokenIds.current();
-
-        require(totalMinted.add(_count) <= MAX_SUPPLY, "Not enough NFTs left!");
-        require(_count >0 && _count <= MAX_PER_MINT, "Cannot mint specified number of NFTs.");
-        // require(msg.value >= PRICE.mul(_count), "Not enough ether to purchase NFTs.");
-
-        for (uint i = 0; i < _count; i++) {
-            _mintSingleNFT();
-        }
-    }
-
-    function _mintSingleNFT() private {
-        uint newTokenID = _tokenIds.current();
-        _safeMint(msg.sender, newTokenID);
+    function mint() public payable isLaunched hasNotMinted isMintCost notSoldOut {
+        walletMinted[msg.sender] = true;
+        _safeMint(msg.sender, _tokenIds.current());
         _tokenIds.increment();
+    }    
+
+    function launchProject() public onlyOwner {
+        require(projectLaunched == false, "Project is already launched");
+        projectLaunched = true;
     }
 
-    function tokensOfOwner(address _owner) external view returns (uint[] memory) {
-
-        uint tokenCount = balanceOf(_owner);
-        uint[] memory tokensId = new uint256[](tokenCount);
-
-        for (uint i = 0; i < tokenCount; i++) {
-            tokensId[i] = tokenOfOwnerByIndex(_owner, i);
-        }
-        return tokensId;
-    }
-
-    function withdraw() public payable onlyOwner {
+    function withdraw() public payable {
         uint balance = address(this).balance;
         require(balance > 0, "No ether left to withdraw");
 
-        (bool success, ) = (msg.sender).call{value: balance}("");
+        (bool success, ) = payable(payments).call{value: balance}("");
         require(success, "Transfer failed.");
     }
 
@@ -83,4 +82,11 @@ contract ArkaniaNfts is ERC721Enumerable, Ownable {
         contractURI = _contractURI;
     }
 
+    function setRoyaltyInfo(address _receiver, uint96 _royaltyFeesInBips) public onlyOwner {
+        _setDefaultRoyalty(_receiver, _royaltyFeesInBips);
+    }
+
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC2981, ERC721Enumerable) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
 }

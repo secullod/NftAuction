@@ -11,8 +11,8 @@ import {
 import metamaskImg from "./metamask.png";
 import { ethers, utils } from "ethers";
 import { useEffect, useState } from "react";
-import auction from "./auction.json";
-const auctionAddress = "0xB04CCCEd205a03ffc8b46041613a479d666D256C";
+import auction from "./arkaniaAuction.json";
+const auctionAddress = "0x5382CC32FF78Aa7F5D8D500FC62BF5Cf8Ac23feA";
 
 function App() {
   const [bid, setBid] = useState(0);
